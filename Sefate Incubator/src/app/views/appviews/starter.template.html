@@ -1,0 +1,195 @@
+<div class="wrapper wrapper-content">
+  <div class="container">
+    <div class="row">
+      <div *ngFor="let record of statusReport.statusRecord" class="col-md-2">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <span class="label label-success pull-right">{{record.description}}</span>
+            <h4 class="no-margins">{{record.numberOfRecords}} </h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" id="ibox2">
+      <div class="col-lg-12" id="workItems">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title bg-primary">
+            <h5> Company Applications </h5>
+            <iboxtools></iboxtools>
+          </div>
+          <div class="ibox-content">
+            <div class="row m-b-sm m-t-sm">
+              <div class="col-md-1">
+                <button type="button" (click)="GetWorkItemGrid()" id="loading-example-btn" class="btn btn-white btn-sm"><i class="fa fa-refresh"></i> Refresh</button>
+              </div>
+              <div class="col-md-11">
+                <div class="input-group"><input (ngModelChange)='onFilterChanged($event)' [ngModel]='searchText' type="text" placeholder="Search"
+                    class="input-sm form-control"> <span class="input-group-btn">
+                                                      <button type="button" class="btn btn-sm btn-primary"> Go!</button> </span></div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Item ID</th>
+                    <th>Client Name </th>
+                    <th>Registration No </th>
+                    <th>Status </th>
+                    <th>Created Date </th>
+                    <th>Modified Date </th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr (click)="showProfileOnClick(item)" *ngFor="let item of currentGridPageResul.data">
+                    <td>{{ item.workItemID }}</td>
+                    <td>{{ item.primaryClient.clientName }}</td>
+                    <td>{{ item.primaryClient.registrationNo }}</td>
+                    <td><span [ngClass]="setStatusCSS(item.workItemStatusInfor.statusCode)">{{ item.workItemStatusInfor.status }}</span></td>
+                    <td>{{ item.createdDate }}</td>
+                    <td>{{ item.modifiedDate }}</td>
+                    <td>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <a (click)="ViewWorkItem(item)" class="btn btn-white btn-sm"><i class="fa fa-folder"></i> View </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-sm-9 m-b-xs">
+                <div data-toggle="buttons" class="btn-group">
+                  <label (click)="SetCurrentPage(page)" *ngFor="let page of gridPageResuls" [ngClass]="page.active ? 'btn btn-sm btn-primary active' : 'btn btn-sm btn-white'"> <input type="radio" id="option1" name="options"> {{page.pageNumber}} </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="profile">
+        <div class="row">
+          <div class="col-lg-12 sidebar-collapse">
+            <div class="ibox">
+              <div class="ibox-content">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="col-lg-2 pull-right">
+                      <a (click)="hideProfileOnClick()" class="btn btn-danger btn-xs">close</a>
+                    </div>
+                    <div class="col-lg-2 pull-right">
+                      <a (click)="clientReview()" class="btn btn-info btn-xs">full profile</a>
+                    </div>
+                    <div class="col-lg-6">
+                      <h2>{{currentProfile.primaryClient.clientName}}</h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-5">
+                    <dl class="dl-horizontal">
+                      <dt>Status:</dt>
+                      <dd><span class="label label-primary">{{currentProfile.workItemStatusInfor.status}}</span></dd>
+                    </dl>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-5">
+                    <dl class="dl-horizontal">
+                      <dt>Created by:</dt>
+                      <dd *ngIf="currentProfile.createdBy">{{currentProfile.createdBy.fullname}}</dd>
+                      <dt>Item ID:</dt>
+                      <dd>{{currentProfile.workItemID}}</dd>
+                      <dt>Reg no:</dt>
+                      <dd>{{currentProfile.primaryClient.registrationNo}}</dd>
+                      <dt>Contact Person:</dt>
+                      <dd> {{currentProfile.clientProfile.contactPerson}} </dd>
+                      <dt>Contact:</dt>
+                      <dd> {{currentProfile.clientProfile.contacts}} </dd>
+                      <dt>Website:</dt>
+                      <dd> {{currentProfile.clientProfile.website}} </dd>
+                    </dl>
+                  </div>
+                </div>
+                <div class="row m-t-sm">
+                  <div class="col-lg-12">
+                    <div class="panel blank-panel">
+                      <div class="panel-heading">
+                        <div class="panel-options">
+                          <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab-1" data-toggle="tab">Entity Documents</a></li>
+                            <li class=""><a href="#tab-2" data-toggle="tab">Timeline</a></li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="panel-body">
+                        <div class="tab-content">
+                          <div class="tab-pane active" id="tab-1">
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                  <div class="ibox-title">
+                                    <iboxtools></iboxtools>
+                                  </div>
+                                  <div class="ibox-content">
+                                    <div>
+                                      <div class="feed-activity-list">
+                                        <div *ngFor=" let documentField of currentProfile.workItemDocuments" class="feed-element">
+                                          <div class="media-body ">
+                                            <span [ngClass]="GetDocumentStatusCSS(documentField.documentStatus.statusID)">{{GetDocumentStatusText(documentField.documentStatus.statusID)}}</span>
+                                            <a (click)="GetFileById(documentField)"> <strong>{{documentField.documentName}}</strong></a>
+                                            <br>
+                                            <small class="text-muted">{{documentField.documentType}}</small>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="tab-pane" id="tab-2">
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                  <div class="ibox-content">
+                                    <table class="table table-hover no-margins">
+                                      <thead>
+                                        <tr>
+                                          <th>Status</th>
+                                          <th>Date</th>
+                                          <th>User</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr *ngFor="let timeline of currentProfile.workItemTimeLine">
+                                          <td><span class="label label-primary">{{timeline.workItemStage}}</span> </td>
+                                          <td><i class="fa fa-clock-o"></i> {{timeline.createDate}}</td>
+                                          <td>{{timeline.createdUser}}</td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
